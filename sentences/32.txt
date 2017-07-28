@@ -1,0 +1,7 @@
+kate
+needs
+two
+large
+hooks
+for
+string

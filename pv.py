@@ -1,6 +1,6 @@
 # pv.py
 # Phase Vocoder implementation in Python
-# the phase update is taken from here...
+# https://github.com/multivac61/pv
 
 import sys
 import numpy as np
@@ -73,7 +73,7 @@ class PhaseVocoder(object):
 		L = x.size
 		L0 = int(x.size*alpha)
 
-		# Get an prior approximation of the fundamental frequency
+		# Get a prior approximation of the fundamental frequency
 		if alpha != 1.0:
 			A = np.fft.fft(w*x[0:N])
 			B = np.fft.fft(w*x[Ra:Ra+N])
@@ -91,7 +91,7 @@ class PhaseVocoder(object):
 			y = np.zeros(x.size)
 		else:
 			x = np.append(np.zeros(Rs), x)
-			#x = np.append(x, np.zeros(Rs))
+			# x = np.append(x, np.zeros(Rs))
 
 			y = np.zeros(int((x.size)*alpha + x.size/Ra * alpha))
 
@@ -122,12 +122,12 @@ class PhaseVocoder(object):
 
 			# previously 
 			# y[pp:pp+N] += w*np.fft.ifft(Y)
-			# print len(y[pp:pp+N])
+			# y[pp:pp+N] becomes less than 1024 ???
 			y[pp:pp+N] = y[pp:pp+N] + w*np.real(np.fft.ifft(Y))
 			
 			
 			p = int(p+Ra)		# analysis hop
-			pp += 128			# synthesis hop
+			pp += Rs			# synthesis hop
 
 
 			# sys.stdout.write ("Percentage finishied: %d %% \r" % int(100.0*p/pend))
@@ -184,8 +184,8 @@ if __name__ == '__main__':
 		M = 2**10					# Size of window
 
 		w = np.hanning(M-1)			# Type of Window (Hanning)
-		# w = np.hamming(M-1)		# Type of Window (Hamming)
-		# w = np.hamm(M-1)			# Type of Window (Hann)
+		#w = np.hamming(M-1)		# Type of Window (Hamming)
+		#w = np.hamm(M-1)			# Type of Window (Hann)
 		w = np.append(w, [0])		# Make window symmetric about (M-1)/2
 
 		# Synthesis hop factor and hop size
@@ -214,7 +214,6 @@ if __name__ == '__main__':
 		# and output signals
 		'''
 		import matplotlib.pyplot as plt
-
 		# plot the input sound
 		plt.subplot(2,1,1)
 		plt.plot(np.arange(x.size)/float(fs), x)
@@ -222,7 +221,6 @@ if __name__ == '__main__':
 		plt.ylabel('amplitude')
 		plt.xlabel('time (sec)')
 		plt.title('input sound: x')
-
 		# plot the output sound
 		plt.subplot(2,1,2)
 		plt.plot(np.arange(y.size)/float(fs), y)
@@ -230,6 +228,5 @@ if __name__ == '__main__':
 		plt.ylabel('amplitude')
 		plt.xlabel('time (sec)')
 		plt.title('output sound: x')
-
 		plt.show()
 		'''

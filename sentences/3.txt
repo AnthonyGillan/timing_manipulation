@@ -1,0 +1,7 @@
+six
+queens
+plant
+twelve
+trees
+near
+schools

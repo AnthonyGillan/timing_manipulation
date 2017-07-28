@@ -40,9 +40,8 @@ def louden(signal):
     return signal/this_max
       
 def control(samp_freq,snd,new_length, gammatone_coeffs, num_gammatone_bands):
-	sound=louden(snd)       # normalise
-	print 'sound', sound
-
+##############################################################################################################################################
+	# sound=louden(snd)       # normalise
 	# noise=white_noise(snd.shape[0])  # create noise same length as sound
 	# # noise=louden(noise)              # normalise
 	# print 'noise', noise
@@ -79,5 +78,24 @@ def control(samp_freq,snd,new_length, gammatone_coeffs, num_gammatone_bands):
 	
 	# print 's_control dimensions are', s_control.shape
 	# print "\n"
+##############################################################################################################################################
+	sound=louden(snd)       # normalise
+	filtered_signal_matrix=zeros((num_gammatone_bands, sound.shape[0])) # for gammatone decomposition of sound
+	filtered_signal_matrix=erb_filterbank(sound, gammatone_coeffs) 		# decompose the signal through the gammatone bank
+	# identify the envelope of each filter's output
+	# multiply the envelopes by the decomposed noise
+	# sum
+	band_envelopes=zeros((num_gammatone_bands, sound.shape[0]))
+	main_envelope=zeros(sound.shape[0]) # list of length: how many samples there are in this gammavariated word
 
-	return snd                        # return the word to the bird
+	# print "hilbert envelopes out and fill"
+	for i in range (0,num_gammatone_bands):
+	    analytic_signal=hilbert(filtered_signal_matrix[i,:])        	# hilbert transfrom on each signal 
+	    band_envelopes[i,:]=np.abs(analytic_signal)   					    # abs value of analytic signal is signal envelope
+
+	main_envelope=band_envelopes.sum(axis=0) # sum along columns
+
+	# for i in range (0, sound.shape[0]):
+	# 	main_envelope[i]=int((2**15)*main_envelope[i])
+
+	return main_envelope                  

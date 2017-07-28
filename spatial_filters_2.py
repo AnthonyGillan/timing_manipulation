@@ -42,6 +42,17 @@ def butter2d_vert_lp(shape, f, n, pxd=1):
     filt = y + filt_x
 
     return filt
+
+def butter2d_horiz_lp(shape, f, n, pxd=1):
+    pxd = float(pxd)
+    rows, cols = shape
+    x = np.linspace(-0.5, 0.5, rows)  * rows / pxd
+    x = x[np.newaxis]
+    y = np.zeros(cols)
+    y = y[:, np.newaxis]
+    filt_x = 1 / (1.0 + (x / f)**(2*n))
+    filt = y + filt_x
+    return filt.transpose()
  
 def butter2d_bp(shape, cutin, cutoff, n, pxd=1):
     """Designs an n-th order bandpass 2D Butterworth filter with cutin and
@@ -118,7 +129,7 @@ def test():
     plt.gray()
     plt.axis('off')
    
-    filt = butter2d_vert_lp(shape=orig_image.shape, f=5, n=10, pxd=1)
+    filt = butter2d_horiz_lp(shape=orig_image.shape, f=5, n=10, pxd=1)
     # filt = butter2d_lp(shape=orig_image.shape, f=10, n=10, pxd=1)
     fft_new = fft_orig * filt
     new_image = np.abs(np.fft.ifft2(np.fft.ifftshift(fft_new)))
@@ -186,5 +197,5 @@ def test():
    
     plt.show()
    
-# if __name__ == '__main__':
-    # test()
+if __name__ == '__main__':
+    test()
