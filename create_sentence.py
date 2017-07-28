@@ -34,8 +34,8 @@ class Sentence:
         for word_name in lines:               # iterate through words (text) as only one word per line
             self.word_names.append(word_name) # append words (text) to list
 
-            audio_seg_word = AudioSegment.from_file("sentences_audio/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
-            word_freq, w = wavfile.read("sentences_audio/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
+            audio_seg_word = AudioSegment.from_file("words_audio/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
+            word_freq, w = wavfile.read("words_audio/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
 
             start_trim_time = self.detect_leading_silence(audio_seg_word)						
             end_trim_time = self.detect_leading_silence(audio_seg_word.reverse())

@@ -34,10 +34,10 @@ class Sentence:
         for word_name in lines:               # iterate through words (text) as only one word per line
             self.word_names.append(word_name) # append words (text) to list
 
-            audio_seg_word = AudioSegment.from_file("sentences_audio/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
-            word_freq, w = wavfile.read("sentences_audio/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
+            audio_seg_word = AudioSegment.from_file("words_audio/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
+            word_freq, w = wavfile.read("words_audio/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
             
-            word = wave.open("sentences_audio/"+sentence_file+"/"+word_name+".wav")				# do this to convert to floating point 1 to -1
+            word = wave.open("words_audio/"+sentence_file+"/"+word_name+".wav")				# do this to convert to floating point 1 to -1
             astr = word.readframes(word.getnframes())
 		    # convert binary chunks to short 
             word = struct.unpack("%ih" % (word.getnframes()* word.getnchannels()), astr)
