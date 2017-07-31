@@ -151,6 +151,24 @@ def stretch(word, stretch_factor):
 
     return new_w.astype('int16')
 
+def fades(word, percentage_fade):
+	fade_length_samples = int(word.size * percentage_fade)
+	fade_factor = 0
+	fade_increment = 1/float(fade_length_samples)
+
+	for i in range(0, fade_length_samples):
+		fade_factor += fade_increment
+		word[i] *= fade_factor
+		word[i] = int(word[i])
+
+	fade_factor = 1
+	for i in range(word.size-fade_length_samples, word.size):
+		fade_factor -= fade_increment
+		word[i] *= fade_factor
+		word[i] = int(word[i])
+
+	return word
+
 def peak_envelope(sound, peak_separation, min_amplitude):
 	# envelope=np.zeros(sound.shape)
 	# indexes=[]
@@ -291,11 +309,13 @@ def main(argv):
 			   		stretch_f = new_l/old_l
 			   		# s.words[i]=stretch_simple(s.words[i], stretch_f)
 			   		s.words[i] = stretch(s.words[i], stretch_f)
+			   		s.words[i] = fades(s.words[i], percentage_fade=0.2)
 			   		control_words.append(s.words[i])
 			   	else:
 			   		old_l = s.t_lengths[i]
 			   		stretch_f = base_l/old_l
 			   		s.words[i] = stretch(s.words[i], stretch_f)
+			   		s.words[i] = fades(s.words[i], percentage_fade=0.1)
 			   		control_words.append(s.words[i])
 			else:							# new_length of 0 means no stretch
 				stretch_f=1

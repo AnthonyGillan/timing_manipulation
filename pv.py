@@ -91,41 +91,23 @@ class PhaseVocoder(object):
 			y = np.zeros(x.size)
 		else:
 			x = np.append(np.zeros(Rs), x)
-			# x = np.append(x, np.zeros(Rs))
 
 			iteration_end = x.size - (Rs+N)
 			num_iterations = ceil(iteration_end/float(Ra))
 
 			num_samples_y = Rs*(num_iterations-1) + 1024
-			print 'Ra', Ra
-			print 'Rs', Rs
-			print 'alpha', alpha
-			print 'iteration_end', iteration_end
-			print 'num_iterations', num_iterations
-			print 'num_samples_y', num_samples_y
 
 			# y = np.zeros(int((x.size)*alpha + (x.size/Ra)*alpha))
 			y = np.zeros(int(num_samples_y))
 
-			# windows_fitting_in = (len(y)-N+Rs)/float(Rs)
-			# extra_zeros_needed = (ceil(windows_fitting_in)-windows_fitting_in)*N
-
-			# print 'len(y)', len(y)
-			# print 'x.size', x.size
-			# print 'windows_fitting_in', windows_fitting_in
-
-			# y = np.append(y, np.zeros(1000))
-
 		# Pointers and initializations
 		p, pp = 0, 0
 		pend = x.size - (Rs+N)
-		print 'pend', pend
 		Yold = epsilon
 
 		i = 0
 		while p < pend:
 			i += 1
-			print i
 			# Spectra of two consecutive windows
 			Xs = np.fft.fft(w*x[p:p+N])
 			Xt = np.fft.fft(w*x[p+Rs:p+Rs+N])
