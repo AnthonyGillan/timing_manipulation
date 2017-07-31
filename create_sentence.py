@@ -137,14 +137,14 @@ def stretch_simple(sound, f, window_size=2**10, h=2**10/4):
 
     return result.astype('int16')
 
-def stretch(word, new_length):
+def stretch(word, stretch_factor):
     N = 2**10					# Number of channels
     M = 2**10					# Size of window
     w = np.hanning(M-1)			# Type of Window (Hanning)
     w = np.append(w, [0])		# Make window symmetric about (M-1)/2
-    Os = 4.0					# Synthesis hop factor
+    Os = 8.0					# Synthesis hop factor
     Rs = int(N / Os)			# Synthesis hop size
-    alpha = new_length
+    alpha = stretch_factor
 
     pv = PhaseVocoder(N, M, Rs, w, alpha)
     new_w = pv.timestretch(word, alpha)  		  # stretch word by factor alpha
@@ -299,7 +299,7 @@ def main(argv):
 			   		control_words.append(s.words[i])
 			else:							# new_length of 0 means no stretch
 				stretch_f=1
-		   		# s.words[i] = stretch(s.words[i], stretch_f) # optional to put through phase vocoder without stretch 
+		   		s.words[i] = stretch(s.words[i], stretch_f) # optional to put through phase vocoder without stretch 
 		   		control_words.append(s.words[i])
 
 

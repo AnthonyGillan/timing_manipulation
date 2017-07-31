@@ -5,7 +5,7 @@
 import sys
 import numpy as np
 from scipy.io import wavfile
-from math import floor
+from math import floor, ceil
 
 # CONSTANTS
 epsilon = sys.float_info.epsilon
@@ -93,16 +93,39 @@ class PhaseVocoder(object):
 			x = np.append(np.zeros(Rs), x)
 			# x = np.append(x, np.zeros(Rs))
 
-			y = np.zeros(int((x.size)*alpha + x.size/Ra * alpha))
+			iteration_end = x.size - (Rs+N)
+			num_iterations = ceil(iteration_end/float(Ra))
+
+			num_samples_y = Rs*(num_iterations-1) + 1024
+			print 'Ra', Ra
+			print 'Rs', Rs
+			print 'alpha', alpha
+			print 'iteration_end', iteration_end
+			print 'num_iterations', num_iterations
+			print 'num_samples_y', num_samples_y
+
+			# y = np.zeros(int((x.size)*alpha + (x.size/Ra)*alpha))
+			y = np.zeros(int(num_samples_y))
+
+			# windows_fitting_in = (len(y)-N+Rs)/float(Rs)
+			# extra_zeros_needed = (ceil(windows_fitting_in)-windows_fitting_in)*N
+
+			# print 'len(y)', len(y)
+			# print 'x.size', x.size
+			# print 'windows_fitting_in', windows_fitting_in
+
+			# y = np.append(y, np.zeros(1000))
 
 		# Pointers and initializations
 		p, pp = 0, 0
 		pend = x.size - (Rs+N)
+		print 'pend', pend
 		Yold = epsilon
 
 		i = 0
-		while p <= pend:
+		while p < pend:
 			i += 1
+			print i
 			# Spectra of two consecutive windows
 			Xs = np.fft.fft(w*x[p:p+N])
 			Xt = np.fft.fft(w*x[p+Rs:p+Rs+N])
@@ -120,15 +143,10 @@ class PhaseVocoder(object):
 			Yold = Y
 			Yold[Yold == 0] = epsilon
 
-			# previously 
-			# y[pp:pp+N] += w*np.fft.ifft(Y)
-			# y[pp:pp+N] becomes less than 1024 ???
-			y[pp:pp+N] = y[pp:pp+N] + w*np.real(np.fft.ifft(Y))
-			
+			y[pp:pp+N] += w*np.real(np.fft.ifft(Y))
 			
 			p = int(p+Ra)		# analysis hop
 			pp += Rs			# synthesis hop
-
 
 			# sys.stdout.write ("Percentage finishied: %d %% \r" % int(100.0*p/pend))
 			sys.stdout.flush()
