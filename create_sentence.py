@@ -10,6 +10,7 @@ from random import gammavariate
 from scipy.io import wavfile
 from scipy.interpolate import interp1d
 from scipy.signal import butter, lfilter, hilbert, stft, istft, spectrogram
+from scipy import stats
 import pywt
 import numpy as np
 from numpy.lib import stride_tricks
@@ -156,13 +157,13 @@ def fades(word, percentage_fade):
 	fade_factor = 0
 	fade_increment = 1/float(fade_length_samples)
 
-	for i in range(0, fade_length_samples):
+	for i in range(0, fade_length_samples): # fade from start
 		fade_factor += fade_increment
 		word[i] *= fade_factor
 		word[i] = int(word[i])
 
 	fade_factor = 1
-	for i in range(word.size-fade_length_samples, word.size):
+	for i in range(word.size-fade_length_samples, word.size): # fade to end
 		fade_factor -= fade_increment
 		word[i] *= fade_factor
 		word[i] = int(word[i])
@@ -255,9 +256,9 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order):
 
 def main(argv):
 
-	base_l = 0.5                                            # 150ms base length
+	base_l = 0.4                                            # 150ms base length
 	new_l_av = 0.2                                          # new average length 
-	k = 20                                                  # shape of distribution
+	k = 0.1                                                  # shape of distribution
 	theta = new_l_av/k                                      # scale of distribution
 
 	sentence_file = ''
@@ -265,6 +266,15 @@ def main(argv):
 
 	num_gammatone_bands = 32
 	gammatone_cutoff_l = 50
+
+	x = np.linspace (0, 100, 200) 
+	y1 = stats.gamma.pdf(x, a=80, scale=0.1)
+	plt.plot(x, y1, "y-", label=(r'$\alpha=29, \beta=3$')) 
+
+
+	plt.ylim([0,0.08])
+	plt.xlim([0,150])
+	plt.show()
 
 	try:                                                   # runs in entirety unless exception
 		opts, args = getopt.getopt(argv,"hb:e:s:",["sfile=","stretch="])   # Parses command line opts and param list. (args, shortopts, longopts=[]), short -h,-i: colon if requires argument
@@ -277,31 +287,27 @@ def main(argv):
 			sys.exit()                                      # exit from python
 		elif opt in ("-b", "--begin"):                      # if option is -i ie// input
 			start_file = float(arg)                              # sentence file = arguments
-			start_file = int(start_file)
-			# print 'Sentence file is', sentence_file           
+			start_file = int(start_file)         
 		elif opt in ("-e", "--end"):                      # if option is -i ie// input
 			stop_file = float(arg)                              # sentence file = arguments
 			stop_file = int(stop_file)
 		elif opt in ("-s", "--stretch"):                      # if option is -i ie// input
 			new_length = float(arg)                       # stretch facotr = arguments
-			print 'Stretch factor is', new_length
+			print 'new length is', new_length
 
 	for sentence_file in range(start_file, stop_file+1):
-		s = Sentence(str(sentence_file), new_length)                              # create a Sentence object s
-
-		# s_concatenate(s)
+		s = Sentence(str(sentence_file), new_length)         # create a Sentence object s
 
 		# create a gammatone filterbank
 		coefs = gammatone_create(samp_freq=s.freq, num_freqs=num_gammatone_bands, lower_cutoff=gammatone_cutoff_l)
 
-		# control_words = [0]*s.samples_in_sentence
 		control_words = []
 
 	   	for i in range(s.length):
-	   		# s.words[i]=louden(s.words[i])       # normalise
 	   		if s.new_length !=0:				# new_length of 0 means no stretch
 		   		if i != s.length/2: 		 	# don't stretch the middle word
-			   		new_l = s.new_length # base_l+gammavariate(k, theta)
+			   		new_l = s.new_length
+			   		new_l = base_l + gammavariate(k, theta)
 			   		print 'new_l', new_l
 			   		old_l = s.t_lengths[i]
 			  		print 'old_l', old_l
@@ -318,8 +324,8 @@ def main(argv):
 			   		s.words[i] = fades(s.words[i], percentage_fade=0.1)
 			   		control_words.append(s.words[i])
 			else:							# new_length of 0 means no stretch
-				stretch_f=1
-		   		s.words[i] = stretch(s.words[i], stretch_f) # optional to put through phase vocoder without stretch 
+				# stretch_f=1
+		   		# s.words[i] = stretch(s.words[i], stretch_f) # optional to put through phase vocoder without stretch 
 		   		control_words.append(s.words[i])
 
 

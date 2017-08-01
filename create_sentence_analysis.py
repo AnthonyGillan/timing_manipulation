@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 class Sentence:
 
-    def __init__(self, sentence_file, stretch_factor):
+    def __init__(self, sentence_file, new_length):
         text_file = open("sentences/"+sentence_file+".txt", "r") # open file, read mode
         lines = text_file.readlines()        # returns a list of lines in file, these files contain one word per line
         lines =[s.strip() for s in lines]    # trims trailing and leading whitespace
@@ -28,7 +28,7 @@ class Sentence:
         word_freqs = []                        # instance variable for sample rates
         self.t_lengths = []                    # instance variable for time lengths of words
         self.samples_in_sentence = 0
-        self.stretch_factor = stretch_factor
+        self.new_length = new_length
         print "\n"
 
         for word_name in lines:               # iterate through words (text) as only one word per line
@@ -37,12 +37,12 @@ class Sentence:
             audio_seg_word = AudioSegment.from_file("words_audio/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
             word_freq, w = wavfile.read("words_audio/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
             
-            word = wave.open("words_audio/"+sentence_file+"/"+word_name+".wav")				# do this to convert to floating point 1 to -1
-            astr = word.readframes(word.getnframes())
-		    # convert binary chunks to short 
-            word = struct.unpack("%ih" % (word.getnframes()* word.getnchannels()), astr)
-            word = [float(val) / pow(2, 15) for val in word]
-            word=np.asarray(word)
+      #       word = wave.open("words_audio/"+sentence_file+"/"+word_name+".wav")				# do this to convert to floating point 1 to -1
+      #       astr = word.readframes(word.getnframes())
+		    # # convert binary chunks to short 
+      #       word = struct.unpack("%ih" % (word.getnframes()* word.getnchannels()), astr)
+      #       word = [float(val) / pow(2, 15) for val in word]
+      #       word=np.asarray(word)
 
             start_trim_time = self.detect_leading_silence(audio_seg_word)						
             end_trim_time = self.detect_leading_silence(audio_seg_word.reverse())
@@ -53,7 +53,7 @@ class Sentence:
             end_trim = int(word_freq * (double(end_trim_time) / 1000))
             duration = int(word_freq * (double(duration_time) / 1000))
 
-            word = word[start_trim:duration - end_trim]				     # perform the trim
+            word = w[start_trim:duration - end_trim]				     # perform the trim
             
             self.words.append(word)                                      # append word (audio) to 'words'
             word_freqs.append(word_freq)                                 # append sample rate of .wav to word_freqs
@@ -153,7 +153,23 @@ def stretch(word, stretch_factor):
 
     return new_w.astype('int16')
 
-    return new_w
+def fades(word, percentage_fade):
+	fade_length_samples = int(word.size * percentage_fade)
+	fade_factor = 0
+	fade_increment = 1/float(fade_length_samples)
+
+	for i in range(0, fade_length_samples): # fade from start
+		fade_factor += fade_increment
+		word[i] *= fade_factor
+		word[i] = int(word[i])
+
+	fade_factor = 1
+	for i in range(word.size-fade_length_samples, word.size): # fade to end
+		fade_factor -= fade_increment
+		word[i] *= fade_factor
+		word[i] = int(word[i])
+
+	return word
 
 def peak_envelope(sound, peak_separation, min_amplitude):
 	# envelope=np.zeros(sound.shape)
@@ -247,7 +263,7 @@ def main(argv):
 	theta = new_l_av/k                                      # scale of distribution
 
 	sentence_file = ''
-	stretch_factor = 1.0
+	new_length = 1.0
 
 	num_gammatone_bands = 32
 	gammatone_cutoff_l = 10
@@ -255,61 +271,63 @@ def main(argv):
 	try:                                                   # runs in entirety unless exception
 		opts, args = getopt.getopt(argv,"hi:s:",["sfile=","stretch="])   # Parses command line opts and param list. (args, shortopts, longopts=[]), short -h,-i: colon if requires argument
 	except getopt.GetoptError:                             # raised when an unrecognized option is found in the argument list or when an option requiring an argument is given none
-		print 'load_sentence.py -i <sentence_file> -s <stretch_factor(float)>'         # <input file>
+		print 'load_sentence.py -i <sentence_file> -s <new_length(float)>'         # <input file>
 		sys.exit(2)                                         # exit from python -> arg is an int (2) giving the exit status
 	for opt, arg in opts:                                  # cycle through options
 		if opt == '-h':
-			print 'load_sentence.py -i <sentence_file -s <stretch_factor(float)>'     # <input file>
+			print 'load_sentence.py -i <sentence_file -s <new_length(float)>'     # <input file>
 			sys.exit()                                      # exit from python
 		elif opt in ("-i", "--sfile"):                      # if option is -i ie// input
 			sentence_file = arg                              # sentence file = arguments
 			print 'Sentence file is', sentence_file           
 		elif opt in ("-s", "--stretch"):                      # if option is -i ie// input
-			stretch_factor = float(arg)                       # stretch facotr = arguments
-			print 'Stretch factor is', stretch_factor
+			new_length = float(arg)                       # stretch facotr = arguments
+			print 'new_length is', new_length
 
-	s = Sentence(sentence_file, stretch_factor)                              # create a Sentence object s
+	s = Sentence(sentence_file, new_length)                              # create a Sentence object s
 
-	# s_concatenate(s)
-
-	# control_words = [0]*s.samples_in_sentence
 	control_words = []
 
    	for i in range(s.length):
-   		new_l=s.stretch_factor #base_l+gammavariate(k, theta)
-   		print 'new_l', new_l
-   		old_l=s.t_lengths[i]
-  		print 'old_l', old_l
-#####################################################################################################################################################
-  		# stretch_factor=old_l/new_l # eg stretch factor 0.5 -> 0.5 times original
-   		stretch_factor = new_l/old_l
-   		# s.words[i]=stretch_simple(s.words[i], stretch_factor)
-   		s.words[i] = stretch(s.words[i], stretch_factor)
-   		control_words.append(s.words[i])
+		if s.new_length !=0:				# new_length of 0 means no stretch
+	   		new_l=s.new_length #base_l+gammavariate(k, theta)
+	   		print 'new_l', new_l
+	   		old_l=s.t_lengths[i]
+	  		print 'old_l', old_l
+	  		# stretch_f=old_l/new_l # eg stretch factor 0.5 -> 0.5 times original
+	   		stretch_f = new_l/old_l
+	   		# s.words[i]=stretch_simple(s.words[i], stretch_f)
+	   		s.words[i] = stretch(s.words[i], stretch_f)
+	   		s.words[i] = fades(s.words[i], percentage_fade=0.1)
+	   		control_words.append(s.words[i])
+	   	else:
+			# stretch_f=1
+			# s.words[i] = stretch(s.words[i], stretch_f) # optional to put through phase vocoder without stretch 
+			control_words.append(s.words[i])
 
 	control_s = Control_sentence(control_words, s.freq, s.word_names) 	# feed data into class
    	wav_sentence = s_concatenate(control_s)								# use the class to create a .wav file of the sentence 
 
    	samples_in_manip_sentence = len(wav_sentence)
 
-	a = plt.subplot(411)								# plot the sonogram
+	a = plt.subplot(311)								# plot the waveform
 	dt = 1.0/(s.freq)
 	t_end = (float(samples_in_manip_sentence)/s.freq)
 	t = np.arange(0.0, t_end, dt)
-	a.set_title('Waveform of Syllable Stretched to 500ms - Should Show 2 Hz Peak')
+	a.set_title('Waveform of Syllable')
 	a.set_xlabel('t [s]')
 	a.set_ylabel('amplitude')
 	a.grid(b=None, which='both', axis='both')
 	plt.plot(t, wav_sentence, color='red')
 
-	c = plt.subplot(412)								# plot the spectrum taken over the whole sample
-	fft_sentence = fft(signal=wav_sentence, samp_freq=s.freq, N=44100)
-	c.set_xscale('log')
-	c.set_xlabel('frequency [Hz]')
-	c.set_ylabel('|amplitude|')
-	plt.plot(fft_sentence)
+	# c = plt.subplot(412)								# plot the spectrum taken over the whole sample
+	# fft_sentence = fft(signal=wav_sentence, samp_freq=s.freq, N=44100)
+	# c.set_xscale('log')
+	# c.set_xlabel('frequency [Hz]')
+	# c.set_ylabel('|amplitude|')
+	# plt.plot(fft_sentence)
 				
-	d = plt.subplot(413)					# plot the zeroed envelope of the whole sample
+	d = plt.subplot(312)					# plot the zeroed envelope of the whole sample
 	# envelope=peak_envelope(sound=wav_sentence, peak_separation=5, min_amplitude=10)
 	# hilbert envelope
 	# analytic_signal = hilbert(wav_sentence)        	
@@ -329,16 +347,16 @@ def main(argv):
 	dt = 1.0/(s.freq)
 	t_end = (float(len(zeroed_envelope))/s.freq)
 	t = np.arange(0.0, t_end, dt)
-	d.set_title('Normalised, Smoothed, Zeroed Syllable Waveform Envelope')
+	d.set_title('Normalised, Smoothed, Zeroed Sentence Waveform Envelope')
 	d.set_xlabel('t [s]')
 	d.set_ylabel('amplitude')
 	d.grid(b=None, which='both', axis='both')
 	plt.plot(t, zeroed_envelope, color='blue')
 
-	e = plt.subplot(414)					# plot the envelope's spectrum			                            
+	e = plt.subplot(313)					# plot the envelope's spectrum			                            
 	fft_envelope = fft(signal=zeroed_envelope, samp_freq=s.freq, N=44100)
 	e.set_xscale('log')
-	e.set_title('FFT spectrum of Zeroed Syllable Waveform Envelope')
+	e.set_title('FFT spectrum of Zeroed Sentence Waveform Envelope')
 	e.set_xlabel('frequency [Hz]')
 	e.set_ylabel('|amplitude|')
 	e.grid(b=None, which='both', axis='both')
@@ -352,7 +370,7 @@ def main(argv):
 	filtered_wav_sentence = butter_lowpass(signal=wav_sentence, lowcut=300, samp_freq=s.freq, order=10)
 	fft_filtered_sample = fft(signal=wav_sentence, samp_freq=s.freq, N=44100)
 	g.set_xscale('log')
-	g.set_title('FFT Frequency Spectrum of Stretched (1.9x Original) Syllable')
+	g.set_title('FFT Frequency Spectrum of Sentence')
 	g.set_xlabel('frequency [Hz]')
 	g.set_ylabel('|amplitude|')
 	g.grid(b=None, which='both', axis='both')
@@ -408,8 +426,7 @@ def main(argv):
 	fig7 = plt.figure()			# plot reconstructed, filtered spectrogram
 	k = fig7.add_subplot(111)
 	# create vertical filter mask and multiply with signal in Fourier domain
-#####################################################################################################################################################
-	filt = butter2d_vert_lp(shape=fft_2d.shape, f=100, n=10, pxd=1)
+	filt = butter2d_vert_lp(shape=fft_2d.shape, f=9, n=10, pxd=1)
 	fft_filt_sig = fft_2d * filt
 	# shift back
 	recon_specgram = np.fft.ifftshift(fft_filt_sig)
@@ -436,14 +453,14 @@ def main(argv):
 
 	fig8 = plt.figure()			# plot reconstructed audio waveform
 	l = fig8.add_subplot(111)
-	# dt=1.0/(s.freq)
-	# t_end=(float(samples_in_manip_sentence)/s.freq)
-	# t=np.arange(0.0, t_end, dt)
-	# l.set_title('Waveform of Syllable Stretched to 500ms - Should Show 2 Hz Peak')
-	# l.set_xlabel('t [s]')
-	# l.set_ylabel('amplitude')
-	# l.grid(b=None, which='both', axis='both')
-	l.plot(recovered_audio_orig, color='red')
+	dt=1.0/(s.freq)
+	t_end=(float(len(recovered_audio_orig))/s.freq)
+	t=np.arange(0.0, t_end, dt)
+	l.set_title('Waveform of Reconstructed Sentence')
+	l.set_xlabel('t [s]')
+	l.set_ylabel('amplitude')
+	l.grid(b=None, which='both', axis='both')
+	l.plot(t, recovered_audio_orig, color='red')
 
 	wavfile.write("recov.wav",s.freq, recovered_audio_orig) # (filename, sample rate, data array of int16 samples in sentence)
 

@@ -79,7 +79,8 @@ def control(samp_freq,snd,new_length, gammatone_coeffs, num_gammatone_bands):
 	# print 's_control dimensions are', s_control.shape
 	# print "\n"
 ##############################################################################################################################################
-	sound=louden(snd)       # normalise
+	# sound=louden(snd)       # normalise
+	sound = snd
 	filtered_signal_matrix=zeros((num_gammatone_bands, sound.shape[0])) # for gammatone decomposition of sound
 	filtered_signal_matrix=erb_filterbank(sound, gammatone_coeffs) 		# decompose the signal through the gammatone bank
 	# identify the envelope of each filter's output
