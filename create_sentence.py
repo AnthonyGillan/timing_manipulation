@@ -133,8 +133,6 @@ def stretch_simple(sound, f, window_size=2**10, h=2**10/4):
 	    i2 = int(i/f)
 	    result[i2 : i2 + window_size] += np.real(hanning_window * a2_rephased)
 
-    # result = (2**(16-4)) * result / result.max() # normalize (16bit)
-
     return result.astype('int16')
 
 def stretch(word, stretch_factor):
@@ -168,29 +166,6 @@ def fades(word, percentage_fade):
 		word[i] = int(word[i])
 
 	return word
-
-def window_rms(signal, window_size):
-	a2 = np.power(signal,2)
-	window = np.ones(window_size)/float(window_size)
-	return np.sqrt(np.convolve(a2, window, 'valid'))
-
-def fft(signal, samp_freq, N):
-	f = np.fft.rfft(a=signal, n=N, axis=0)
-	f = f/max(abs(f)) 						# scale amplitude
-	power_density = abs(f)**2
-	return power_density
-
-def butter_lowpass(signal, lowcut, samp_freq, order):
-	nyq = 0.5 * samp_freq                      
-	low = lowcut / nyq   
-	b, a = butter(N=order, Wn=low, btype='lowpass') 
-	filtered_signal = lfilter(b, a, signal)
-	return filtered_signal
-
-def butter_bandpass_filter(data, lowcut, highcut, fs, order):
-    b, a = butter_bandpass(lowcut, highcut, fs, order=order) # obtain filter transfer function
-    y = lfilter(b, a, data)                                  # butter_bandpass_filter, data is sample array
-    return y                                                 # return filtered signal
 
 def main(argv):
 
@@ -238,7 +213,7 @@ def main(argv):
 			   		stretch_f = new_l/old_l
 			   		# s.words[i]=stretch_simple(s.words[i], stretch_f)
 			   		s.words[i] = stretch(s.words[i], stretch_f)
-			   		s.words[i] = fades(s.words[i], percentage_fade=0.2)
+			   		s.words[i] = fades(s.words[i], percentage_fade=0.1)
 			   		control_words.append(s.words[i])
 			   	else:
 			   		old_l = s.t_lengths[i]
