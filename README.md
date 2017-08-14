@@ -17,7 +17,7 @@ target word number  -> location of the target word in the sentence eg// 1 for wo
 
 The target word is the word which will be stretched to a pre-specified base length (base_l) <br />
 
-create_sentence.py -b <start sentence num> -e <end sentence num> -n <new word length (s) for words other than target> -t <target word number>
+create_sentence.py -b start sentence num -e end sentence num -n new word length -t target word number
 
 # Spatial filtering in create_sentence.py:
 
