@@ -213,7 +213,7 @@ def main(argv):
 
 	   	for i in range(s.length):
 	   		if s.new_length !=0:							# new_length of 0 means no stretch
-		   		if i != target_word_num: 		 			# don't stretch target word
+		   		if i != target_word_num: 		 			# don't stretch target word other than to base_l
 			   		new_l = s.new_length
 			   		# new_l = base_l + gammavariate(k, theta)
 			   		print 'new_l', new_l
