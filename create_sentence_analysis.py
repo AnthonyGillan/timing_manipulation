@@ -448,8 +448,9 @@ def main(argv):
 		fft_size=fft_size, step_size=step_size, log=True, n_iter=10)
 
 	recovered_audio_orig = louden(recovered_audio_orig)
-
 	# recovered_audio_orig = butter_lowpass(recovered_audio_orig, 8000, s.freq, 10)
+
+	wavfile.write("recov.wav",s.freq, recovered_audio_orig) # (filename, sample rate, data array of int16 samples in sentence)
 
 	fig8 = plt.figure()			# plot reconstructed audio waveform
 	l = fig8.add_subplot(111)
@@ -461,9 +462,6 @@ def main(argv):
 	l.set_ylabel('amplitude')
 	l.grid(b=None, which='both', axis='both')
 	l.plot(t, recovered_audio_orig, color='red')
-
-	wavfile.write("recov.wav",s.freq, recovered_audio_orig) # (filename, sample rate, data array of int16 samples in sentence)
-
 
 	plt.show()	# show all the plots
 
