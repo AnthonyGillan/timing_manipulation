@@ -1,26 +1,22 @@
 import sys, getopt
-import wave
 import struct
-from envelope_find_fill import *
 from pv import *
 from spectrogram import *
 from spatial_filters import *
 from pylab import *
-from random import gammavariate
+from pydub import AudioSegment
+import wave
 from scipy.io import wavfile
-from scipy.interpolate import interp1d
-from scipy.signal import butter, lfilter, hilbert, stft, istft, spectrogram
+from random import gammavariate
 from scipy import stats
-import pywt
 import numpy as np
 from numpy.lib import stride_tricks
-import peakutils
-import matplotlib.pyplot as plt
 
 class Sentence:
 
     def __init__(self, sentence_file, new_length):
-        text_file = open("sentences/"+sentence_file+".txt", "r") # open file, read mode
+        text_file = open("sentences_longer/"+sentence_file+".txt", "r") # open file, read mode
+        # text_file = open("sentences_shorter/"+sentence_file+".txt", "r") # open file, read mode
         lines = text_file.readlines()        # returns a list of lines in file, these files contain one word per line
         lines =[s.strip() for s in lines]    # trims trailing and leading whitespace
         text_file.close()        
@@ -35,8 +31,12 @@ class Sentence:
         for word_name in lines:               # iterate through words (text) as only one word per line
             self.word_names.append(word_name) # append words (text) to list
 
-            audio_seg_word = AudioSegment.from_file("words_audio/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
-            word_freq, w = wavfile.read("words_audio/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
+            audio_seg_word = AudioSegment.from_file("words_audio_jess/"+word_name+".wav") 	# open as audiosegment to strip silence 
+            word_freq, w = wavfile.read("words_audio_jess/"+word_name+".wav") 		   	   	# do this to get sample rate
+
+            # use for folder hierarchy where audio files are in numbered folders
+            # audio_seg_word = AudioSegment.from_file("words_audio_polly/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
+            # word_freq, w = wavfile.read("words_audio_polly/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
 
             start_trim_time = self.detect_leading_silence(audio_seg_word)						
             end_trim_time = self.detect_leading_silence(audio_seg_word.reverse())
@@ -65,7 +65,7 @@ class Sentence:
         print 'number of samples in sentence is', self.samples_in_sentence
         print "\n"
 
-    def detect_leading_silence(self, sound, silence_threshold=-55.0, chunk_size=5):
+    def detect_leading_silence(self, sound, silence_threshold=-59.0, chunk_size=5):
         # sound is a pydub.AudioSegment
         # silence_threshold in dB
         # chunk_size in ms
@@ -111,7 +111,7 @@ def s_concatenate(sentence, word_length, freq, sentence_number):
     return s_int16
 
 def stretch_simple(sound, f, window_size=2**10, h=2**10/4):
-    # Stretches the sound by a factor 'f'
+    # simple phase vocoder, stretch by factor f
     window_size = int(window_size)
     phase  = np.zeros(window_size)
     hanning_window = np.hanning(window_size)
@@ -136,6 +136,7 @@ def stretch_simple(sound, f, window_size=2**10, h=2**10/4):
     return result.astype('int16')
 
 def stretch(word, stretch_factor):
+	# phase locked phase vocoder
     N = 2**10					# Number of channels
     M = 2**10					# Size of window
     w = np.hanning(M-1)			# Type of Window (Hanning)
@@ -167,6 +168,11 @@ def fades(word, percentage_fade):
 
 	return word
 
+def louden(signal):
+	this_max=np.amax(abs(signal))
+	
+	return signal/this_max
+
 def main(argv):
 
 	base_l = 0.4                                            # base length
@@ -178,13 +184,13 @@ def main(argv):
 	new_length = 1.0
 
 	try:                                                   # runs in entirety unless exception
-		opts, args = getopt.getopt(argv,"hb:e:n:", ["sfile=", "stretch=", "newl=" ])
+		opts, args = getopt.getopt(argv,"hb:e:n:t:", ["sfile=", "stretch=", "newl=", "targetword=" ])
 	except getopt.GetoptError:                             # raised when an unrecognized option is found in the argument list or when an option requiring an argument is given none
-		print 'load_sentence.py -i <sentence_file> -s <new_length(float)>'         # <input file>
-		sys.exit(2)                                         # exit from python -> arg is an int (2) giving the exit status
+		print 'create_sentence.py -b <start sentence num> -e <end sentence num> -n <new word length (s) for words other than target> -t <target word number>' 
+		sys.exit(2)                                        # exit from python -> arg is an int (2) giving the exit status
 	for opt, arg in opts:                                  # cycle through options
 		if opt == '-h':
-			print 'load_sentence.py -b <start sentence number> -e <end sentence number> -n <new word length (s) for words other than middle>'
+			print 'create_sentence.py -b <start sentence num> -e <end sentence num> -n <new word length (s) for words other than target> -t <target word number>'
 			sys.exit()                                    # exit from python
 		elif opt in ("-b", "--begin"):                    # the sentence file to begin from
 			start_file = float(arg)                       
@@ -193,17 +199,21 @@ def main(argv):
 			stop_file = float(arg)                        
 			stop_file = int(stop_file)
 		elif opt in ("-n", "--newl"):                  	  # the length in seconds to stretch to
-			new_length = float(arg)                       
-			print 'new length is', new_length
+			new_length = float(arg)
+		elif opt in ("-t", "--targetword"):               # which word not to stretch
+			target_word_num = int(arg)
+			target_word_num -= 1
+
 
 	for sentence_file in range(start_file, stop_file+1):
+		sentence_num = str(sentence_file)
 		s = Sentence(str(sentence_file), new_length)       	# create a Sentence object s
 
 		control_words = []
 
 	   	for i in range(s.length):
 	   		if s.new_length !=0:							# new_length of 0 means no stretch
-		   		if i != s.length/2: 		 				# don't stretch the middle word
+		   		if i != target_word_num: 		 			# don't stretch target word
 			   		new_l = s.new_length
 			   		# new_l = base_l + gammavariate(k, theta)
 			   		print 'new_l', new_l
@@ -213,13 +223,14 @@ def main(argv):
 			   		stretch_f = new_l/old_l
 			   		# s.words[i]=stretch_simple(s.words[i], stretch_f)
 			   		s.words[i] = stretch(s.words[i], stretch_f)
-			   		s.words[i] = fades(s.words[i], percentage_fade=0.1)
+			   		s.words[i] = fades(s.words[i], percentage_fade=0.05)
 			   		control_words.append(s.words[i])
 			   	else:
 			   		old_l = s.t_lengths[i]
+			   		print 'new_l', base_l
 			   		stretch_f = base_l/old_l
 			   		s.words[i] = stretch(s.words[i], stretch_f)
-			   		s.words[i] = fades(s.words[i], percentage_fade=0.1)
+			   		s.words[i] = fades(s.words[i], percentage_fade=0.05)
 			   		control_words.append(s.words[i])
 			else:											# new_length of 0 means no stretch
 				# stretch_f=1
@@ -228,6 +239,43 @@ def main(argv):
 
 		control_s = Control_sentence(control_words, s.freq, s.word_names) 					# feed data into class
 	   	wav_sentence = s_concatenate(control_s, s.new_length, s.freq, str(sentence_file))	# use the class to create a .wav file of the sentence 
+
+	   	# parameters for spectrogram
+		nyq = s.freq/2
+		fft_size = 2**10 		# window size for the FFT
+		step_size = fft_size/16 # distance to slide along the window (in time)
+		spec_thresh = 4.3 		# threshold for spectrograms in dB. increase values below thresh to thresh. lower=less noise.
+
+		power_specgram, specgram, num_samples, num_windows = pretty_spectrogram(wav_sentence.astype('float64'), fft_size=fft_size, 
+	                                   step_size=step_size, log=True, thresh=spec_thresh)
+
+		oriented_specgram = np.transpose(specgram)
+
+		# 2 dimensional fft gives a matrix
+		fft_2d = np.fft.fft2(oriented_specgram)
+		# shift so low freqs are in center of output matrix
+		fft_2d = np.fft.fftshift(fft_2d)
+
+		# create filter mask and multiply with signal in Fourier domain
+		# filt = butter2d_vert_lp(shape=fft_2d.shape, f=15, n=10, pxd=1) # vertical filter
+		filt = butter2d_horiz_lp(shape=fft_2d.shape, f=20, n=10, pxd=1)	 # horizontal filter
+
+		# filter the signal (multiplication in fourier domain)
+		fft_filt_sig = fft_2d * filt
+		# shift back
+		recon_specgram = np.fft.ifftshift(fft_filt_sig)
+		# ifft2
+		recon_specgram = np.fft.ifft2(recon_specgram)
+		# abs and invert (-)
+		recon_specgram = -np.abs(recon_specgram)
+		recon_specgram[recon_specgram < -4.1] = -4.2
+
+		recovered_audio_orig = invert_pretty_spectrogram(np.transpose(recon_specgram), 
+			fft_size=fft_size, step_size=step_size, log=True, n_iter=10)
+
+		recovered_audio_orig = louden(recovered_audio_orig)
+
+		wavfile.write(""+sentence_num+"_recov.wav", s.freq, recovered_audio_orig) # (filename, sample rate, data array of int16 samples in sentence)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
