@@ -1,10 +1,10 @@
 # timing_manipulation
-Software for creating syllable-timing-manipulated sentences for a psychophysical study on speech comprehensibility.
+Software for creating and analysing syllable-timing-manipulated sentences for a psychophysical study on speech comprehensibility.
 
-# Creating timing-manipulated sentences.
+# Creating timing-manipulated sentences
 Use create_sentence.py to put together sentences as specified in .txt files in the sentences_longer folder (or sentences_shorter if the directory is changed).
 
-# Command line arguments for create_sentence.py:
+# Command line arguments for create_sentence.py
 
 -b <br />
 start sentence num  -> first sentence to assemble (1 is the first sentence not 0) <br />
@@ -19,9 +19,11 @@ The target word is the word which will be stretched to a pre-specified base leng
 
 create_sentence.py -b start sentence num -e end sentence num -n new word length -t target word number
 
-# Spatial filtering in create_sentence.py:
+# Spatial filtering in create_sentence.py
 
 butter2d_horiz_lp -> horizontal spatial filter <br />
 butter2d_vert_lp  -> vertical spatial filter <br />
 
 audio files created from spatially filtered signals are named -> 'sentence_num_recov.wav'
+
+# Analysis with create_sentence_analysis.py
