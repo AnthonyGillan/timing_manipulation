@@ -2,7 +2,7 @@
 Software for creating syllable-timing-manipulated sentences for a psychophysical study on speech comprehensibility.
 
 # Creating timing-manipulated sentences.
-Use create_sentence.py to put together sentences as specified in sentences longer (or shorter if the directory is changed).
+Use create_sentence.py to put together sentences as specified in .txt files in the sentences_longer folder (or sentences_shorter if the directory is changed).
 
 # Command line arguments for create_sentence.py:
 
