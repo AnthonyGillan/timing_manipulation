@@ -89,11 +89,11 @@ class Control_sentence:
 	    self.length = len(self.word_names)                      # amount of words in sentence
 
 def s_concatenate(sentence, word_length, freq, sentence_number):
-
     s = []
     silence_lenght = 0.2 - (0.2*word_length)			# shorter the longer the words are stretched to
-    if silence_lenght<0:
-    	silence_lenght=0
+
+    if silence_lenght < 0:
+    	silence_lenght = 0
 
     silence_samples = zeros(int(silence_lenght*freq))
 
@@ -202,7 +202,7 @@ def main(argv):
 			new_length = float(arg)
 		elif opt in ("-t", "--targetword"):               # which word not to stretch
 			target_word_num = int(arg)
-			target_word_num -= 1
+			target_word_num -= 1						  # index from 1
 
 
 	for sentence_file in range(start_file, stop_file+1):
@@ -212,7 +212,7 @@ def main(argv):
 		control_words = []
 
 	   	for i in range(s.length):
-	   		if s.new_length !=0:							# new_length of 0 means no stretch
+	   		if s.new_length != 0:							# new_length of 0 means no stretch
 		   		if i != target_word_num: 		 			# don't stretch target word other than to base_l
 			   		new_l = s.new_length
 			   		# new_l = base_l + gammavariate(k, theta)
@@ -238,7 +238,10 @@ def main(argv):
 		   		control_words.append(s.words[i])
 
 		control_s = Control_sentence(control_words, s.freq, s.word_names) 					# feed data into class
-	   	wav_sentence = s_concatenate(control_s, s.new_length, s.freq, str(sentence_file))	# use the class to create a .wav file of the sentence 
+	   	wav_sentence = s_concatenate(control_s, s.new_length, s.freq, str(sentence_file))	# use the class to create a .wav file of the sentence
+
+	   	############################ 2D fourier domain operations -> manipulation of spectro-temporal modulation ############################
+	   	# can all be commented out if this manipulation is not required.
 
 	   	# parameters for spectrogram
 		nyq = s.freq/2
@@ -246,7 +249,7 @@ def main(argv):
 		step_size = fft_size/16 # distance to slide along the window (in time)
 		spec_thresh = 4.3 		# threshold for spectrograms in dB. increase values below thresh to thresh. lower=less noise.
 
-		power_specgram, specgram, num_samples, num_windows = pretty_spectrogram(wav_sentence.astype('float64'), fft_size=fft_size, 
+		power_specgram, specgram, num_samples, num_windows=pretty_spectrogram(wav_sentence.astype('float64'), fft_size=fft_size, 
 	                                   step_size=step_size, log=True, thresh=spec_thresh)
 
 		oriented_specgram = np.transpose(specgram)
@@ -275,7 +278,8 @@ def main(argv):
 
 		recovered_audio_orig = louden(recovered_audio_orig)
 
-		wavfile.write(""+sentence_num+"_recov.wav", s.freq, recovered_audio_orig) # (filename, sample rate, data array of int16 samples in sentence)
+		# create .wav of spectro-temporal-modulation manipulated signal
+		wavfile.write(""+sentence_num+"_recov.wav", s.freq, recovered_audio_orig)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])

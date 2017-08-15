@@ -97,7 +97,7 @@ def stft(X, fftsize=128, step=65, mean_normalize=True, real=False,
     X = local_fft(X)[:, :cut]
     return X, samples_in_X, num_win
 
-def pretty_spectrogram(d,log = True, thresh= 5, fft_size = 512, step_size = 64):
+def pretty_spectrogram(d,log = True, thresh=5, fft_size=512, step_size=64):
     """
     creates a spectrogram
     log: take the log of the spectrgram
@@ -126,7 +126,7 @@ def pretty_spectrogram(d,log = True, thresh= 5, fft_size = 512, step_size = 64):
     return power_specgram, specgram, num_samples, num_windows
 
 # Also mostly modified or taken from https://gist.github.com/kastnerkyle/179d6e9a88202ab0a2fe
-def invert_pretty_spectrogram(X_s, log = True, fft_size = 512, step_size = 512/4, n_iter = 10):
+def invert_pretty_spectrogram(X_s, log=True, fft_size=512, step_size=512/4, n_iter=10):
     
     if log == True:
         X_s = np.power(10, X_s)
