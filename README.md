@@ -1,10 +1,10 @@
 # timing_manipulation
 Software for creating and analysing syllable-timing-manipulated sentences for a psychophysical study on speech comprehensibility.
 
-# Creating timing-manipulated sentences
+## Creating timing-manipulated sentences
 Use **create_sentence.py** to put together sentences as specified in .txt files in the **sentences_longer** folder (or **sentences_shorter** if the directory is changed). The .txt files specify the content of the sentence and the corresponding word audio files from words_audio_jess are concatenated.
 
-# words_audio_...
+## words_audio_...
 After 33 sentences were composed (**results_and_sentence_material/sentence_material_longer.txt**), all of the words within these sentences were order-randomised and formatted into columns for ease of reading (**results_and_sentence_material/words_for_reading_slides.pptx**) for the recording session. <br />
 
 **words_for_reading_slides.pptx** was read in its entirety (with some small sections re-read to correct errors) three times and recorded with a Rode NT1A microphone to Logic Pro X through a MOTU Ultralite MKIII audio interface. <br />
@@ -15,7 +15,7 @@ Audacity was used to create a batch processing chain, passing the files through 
 
 **words_audio_stereo_polly** contains words synthesised by AWS polly for the first iteration of the software. **words_audio_polly** contains mono versions.
 
-# Command line arguments for create_sentence.py
+## Command line arguments for create_sentence.py
 **create_sentence.py** **-b** start sentence num **-e** end sentence num **-n** new word length **-t** target word number <br />
 
 **-b** <br />
@@ -29,19 +29,41 @@ target word number       -> location of the target word in the sentence eg// 1 f
 
 The target word is the word which will be stretched to a pre-specified base length (base_l) <br /
 
-# Spatial filtering in create_sentence.py
+## Spatial filtering in create_sentence.py
 **butter2d_horiz_lp**    -> horizontal spatial filter <br />
 **butter2d_vert_lp**     -> vertical spatial filter <br />
 
+Filter parameters are described in **spatial_filters.py** <br />
+
 audio files created from spatially filtered signals are named -> 'sentence_num_recov.wav'
 
-# Analysis and manipulation with create_sentence_analysis.py
+## Analysis and manipulation with create_sentence_analysis.py
 This program acts on one sentence. It may be used to perform various spectro-temporal analyses on a sentence put together as specified in .txt files in the **sentences_longer folder** (or **sentences_shorter** if the directory is changed).
 
-# Command line arguments for create_sentence_analysis.py
+## Spatial filtering in create_sentence_analysis.py
+2D FFT operations and spatial filtering operations are implemented between this line:<br />
+############################ plot 2d FFT of spectrogram ############################<br />
+
+and this line:<br />
+############################ create .wav of spectro-temporal-modulation manipulated signal ############################<br />
+
+**butter2d_horiz_lp**    -> horizontal spatial filter <br />
+**butter2d_vert_lp**     -> vertical spatial filter <br />
+
+Filter parameters are described in **spatial_filters.py**
+
+## Command line arguments for create_sentence_analysis.py
 **create_sentence_analysis.py** **-i** input sentence num **-n** new word length <br />
+
 **-i** <br />
 input sentence number    -> the sentence to be manipulated and analysed <br />
 **-n** <br />
 new word length          -> length in seconds for non-target words to be stretched to <br />
 
+## Phase vocoding with pv.py
+A slightly modified version of: https://github.com/multivac61/pv to allow for time compression to much shorter values. <br />
+
+Phase-locked phase vocoding: http://msp.ucsd.edu/Publications/mohonk95.pdf <br />
+
+## Visualising the spatial filters in spatial_filters_plots.py
+run **spatial_filters_plots.py** to visualise spatial filters
