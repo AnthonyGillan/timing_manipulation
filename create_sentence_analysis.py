@@ -42,13 +42,6 @@ class Sentence:
 			# use for folder hierarchy where audio files are in numbered folders
 			# audio_seg_word = AudioSegment.from_file("words_audio_polly/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
 			# word_freq, w = wavfile.read("words_audio_polly/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
-            
-            # word = wave.open("words_audio/"+sentence_file+"/"+word_name+".wav")				# do this to convert to floating point 1 to -1
-            # astr = word.readframes(word.getnframes())
-		    # # convert binary chunks to short 
-            # word = struct.unpack("%ih" % (word.getnframes()* word.getnchannels()), astr)
-            # word = [float(val) / pow(2, 15) for val in word]
-            # word=np.asarray(word)
 
 			start_trim_time = self.detect_leading_silence(audio_seg_word)						
 			end_trim_time = self.detect_leading_silence(audio_seg_word.reverse())
@@ -63,11 +56,11 @@ class Sentence:
 
 			self.words.append(word)                                      # append word (audio) to 'words'
 			word_freqs.append(word_freq)                                 # append sample rate of .wav to word_freqs
-			self.t_lengths.append(double(word.shape[0]) / word_freq)       # (number of rows in sample data ie samples)/(sample rate) = time length of word
+			self.t_lengths.append(double(word.shape[0]) / word_freq)     # (number of rows in sample data ie samples)/(sample rate) = time length of word
 			self.samples_in_sentence += word.shape[0]
 			print word.shape,word_freq,self.t_lengths[-1],word_name      # number of samples, sample rate, time legth[last in list], word (text)
 
-        self.freq = word_freqs[0]                                          # first sample rate of word
+        self.freq = word_freqs[0]                                        # first sample rate of word
         for freq in word_freqs:                                          # check if sample rates are the same for all words
             if freq != self.freq:
                 print "not all the freqs the same f/p"
@@ -219,27 +212,24 @@ def peak_envelope(sound, peak_separation, min_amplitude):
 	return envelope
 
 def gammatone_envelopes(samp_freq,sound,new_length, gammatone_coeffs, num_gammatone_bands):
-	filtered_signal_matrix=zeros((num_gammatone_bands, sound.shape[0])) # for gammatone decomposition of sound
-	filtered_signal_matrix=erb_filterbank(sound, gammatone_coeffs) 		# decompose the signal through the gammatone bank
-	# identify the envelope of each filter's output
-	# multiply the envelopes by the decomposed noise
-	# sum
-	band_envelopes=zeros((num_gammatone_bands, sound.shape[0]))
-	main_envelope=zeros(sound.shape[0]) # list of length: how many samples there are in this gammavariated word
+	# decompose signal through gammatone filterbank, find sub-band envelopes, sum to obtain total envelope
+	filtered_signal_matrix = zeros((num_gammatone_bands, sound.shape[0]))
+	filtered_signal_matrix = erb_filterbank(sound, gammatone_coeffs) 		
+	band_envelopes = zeros((num_gammatone_bands, sound.shape[0]))
+	main_envelope = zeros(sound.shape[0])
 
-	# print "hilbert envelopes out and fill"
 	for i in range (0,num_gammatone_bands):
-	    analytic_signal=hilbert(filtered_signal_matrix[i,:])        	# hilbert transfrom on each signal 
-	    band_envelopes[i,:]=np.abs(analytic_signal)   					    # abs value of analytic signal is signal envelope
+	    analytic_signal = hilbert(filtered_signal_matrix[i,:])
+	    band_envelopes[i,:] = np.abs(analytic_signal) 
 
-	main_envelope=band_envelopes.sum(axis=0) # sum along columns
+	main_envelope = band_envelopes.sum(axis=0)
 
 	return main_envelope
 
 def gammatone_create(samp_freq, num_freqs, lower_cutoff):
 	# create a gammatone filterbank
-	centre_freq_list=centre_freqs(samp_freq,num_freqs,lower_cutoff)
-	coefs=make_erb_filters(samp_freq, centre_freq_list, width=1.0)
+	centre_freq_list = centre_freqs(samp_freq,num_freqs,lower_cutoff)
+	coefs = make_erb_filters(samp_freq, centre_freq_list, width=1.0)
 
 	return coefs             
 
@@ -492,7 +482,7 @@ def main(argv):
 	l.grid(b=None, which='both', axis='both')
 	l.plot(t, recovered_audio_orig, color='red')
 
-	plt.show()	# show all the plots
+	plt.show()
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
