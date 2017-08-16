@@ -8,7 +8,7 @@ After 33 sentences were composed (**results_and_sentence_material/sentence_mater
 
 The recordings were edited and the clearest and most neutrally read version of each word was selected, lightly volume faded at beginning and end, de-noised with iZotope RX Noise and exported as stereo interleaved 16 bit, 44.1 kHz wave files (**words_audio_stereo_denoised_jess**). <br />
 
-Audacity was used to create a batch processing chain, passing the files through iZotope Nectar for dynamic range parallel compression, de-essing, EQ-ing, light limiting and finally conversion from stereo to mono files for use with the python programs. These processed files are in the **words_audio_jess folder** <br />
+Audacity was used to create a batch processing chain, passing the files through iZotope Nectar for dynamic range parallel compression, de-essing, EQ-ing, light limiting and finally conversion from stereo to mono files for use with the python programs. These processed files are in the **words_audio_jess** folder. <br />
 
 **words_audio_stereo_polly** contains words synthesised by AWS polly for the first iteration of the software. **words_audio_polly** contains mono versions.
 
