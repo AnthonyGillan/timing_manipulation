@@ -29,7 +29,13 @@ target word number       -> location of the target word in the sentence eg// 1 f
 
 The target word is the word which will be stretched to a pre-specified base length (base_l) <br /
 
-## Spatial filtering in create_sentence.py
+## Creating timing-manipulated sentences with create_sentence_a.py
+This program differs from **create_sentence_analysis.py** in that stretching of words is done with respect to the average word length (pre-defined). A deviation factor is used (**-d** in the command line arguments). When deviation_factor=0, all words are stretched to the average word length **ave_l**. The higher the deviation factor, the more the words deviate in length from **ave_l**. 
+
+## Command line arguments for create_sentence_a.py
+**create_sentence_a.py** **-b** start sentence num **-e** end sentence num **-d** deviation factor **-t** target word number <br />
+
+## Spatial filtering in create_sentence.py and create_sentence_a.py
 **butter2d_horiz_lp**    -> horizontal spatial filter <br />
 **butter2d_vert_lp**     -> vertical spatial filter <br />
 
@@ -37,10 +43,16 @@ Filter parameters are described in **spatial_filters.py** <br />
 
 audio files created from spatially filtered signals are named -> 'sentence_num_recov.wav'
 
+
 ## Analysis and manipulation with create_sentence_analysis.py
 This program acts on one sentence. It may be used to perform various spectro-temporal analyses on a sentence put together as specified in .txt files in the **sentences_longer folder** (or **sentences_shorter** if the directory is changed and the audio files directory is changed to **words_audio_polly**).
 
-## Spatial filtering in create_sentence_analysis.py
+## Analysis and manipulation with create_sentence_analysis_a.py
+
+## Command line arguments for create_sentence_analysis_a.py
+**create_sentence_analysis.py** **-i** input sentence num **-d** deviation factor
+
+## Spatial filtering in create_sentence_analysis.py and create_sentence_analysis_a.py
 2D FFT operations and spatial filtering operations are implemented between this line:<br />
 ############################ plot 2d FFT of spectrogram ############################<br />
 
