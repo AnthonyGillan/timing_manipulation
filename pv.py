@@ -1,6 +1,6 @@
 # pv.py
-# Phase Vocoder implementation in Python
-# https://github.com/multivac61/pv
+# phase-locked phae vocoder implementation in Python
+# slightly modified version of https://github.com/multivac61/pv
 
 import sys
 import numpy as np
@@ -19,25 +19,6 @@ class PhaseVocoder(object):
 		self.Rs 	= Rs 	# Synthesis hop size
 		self.alpha  = alpha	# Timestretch factor
 		self.w      = w 	# Analysis/Synthesis window
-
-	def read_wav(self, filename):
-		"""
-		Read signal from .wav file
-		filename: name of input .wav file
-		returns fs: sampling frequency, x: signal stored in filename .wav file 
-		"""
-		(fs, x) = wavfile.read(filename)
-		if len(np.shape(x)) > 1:
-			x = x[:,1]	# crudely convert from stereo to mono
-
-		return (fs, x)
-
-	def write_wav(self, filename, fs, x):
-		"""
-		Write signal to .wav file
-		filename: name of output .wav file, fs: samling frequency, x: input signal
-		"""
-		wavfile.write(filename, fs,  np.array( x , dtype='int16'))
 
 	def speedx(self, sound_array, factor):
 	    """ Multiplies the sound's speed by some `factor` """
@@ -133,9 +114,7 @@ class PhaseVocoder(object):
 			# sys.stdout.write ("Percentage finishied: %d %% \r" % int(100.0*p/pend))
 			sys.stdout.flush()
 
-
 		y = y / wscale
-
 
 		if self.alpha == 1.0:
 			# retrieve input signal perfectly
@@ -152,81 +131,3 @@ class PhaseVocoder(object):
 			y = np.delete(y, range(L0, y.size))
 							
 		return y
-
-def sin_signal(self, fs, T, f0):
-	"""
-	Generate a sinusoidal signal
-	fs: sampling frequency, T: signal duration, f0: signal frequency
-	returns: sinusoid of frequency f0 and length T*fs
-	""" 
-	t  = np.linspace(0, T, T*fs, endpoint=False)
-	return 2**(16-2)*np.sin(2*np.pi * f0 * t)
-
-def ramp_signal(self, fs, T):
-	"""
-	Generate a ramp signal
-	fs: sampling frequency, T: signal duration, f0: signal frequency
-	returns: ramp of length T*fs
-	""" 
-	return 2**(16-2) * np.linspace(0, T, T*fs, endpoint=False) / (T*fs)
-
-if __name__ == '__main__':
-	
-	if len(sys.argv) < 4:
-		print "Usage: py.py <input_file.wav> <timestretch factor> <ouput_file.wav>"
-	else:
-		input_file = sys.argv[1]	# .wav input file
-		alpha = float(sys.argv[2])	# timestrecth factor
-		output_file = sys.argv[3]	# name of .wav output file
-
-		# These parameters should be power of two for FFT
-		N = 2**10					# Number of channels
-		M = 2**10					# Size of window
-
-		w = np.hanning(M-1)			# Type of Window (Hanning)
-		#w = np.hamming(M-1)		# Type of Window (Hamming)
-		#w = np.hamm(M-1)			# Type of Window (Hann)
-		w = np.append(w, [0])		# Make window symmetric about (M-1)/2
-
-		# Synthesis hop factor and hop size
-		Os = 8.						# Synthesis hop factor 
-		Rs = int(N / Os)			# Synthesis hop size
-
-
-		pv = PhaseVocoder(N, M, Rs, w, alpha)
-		fs, x = pv.read_wav(input_file)	# wav input
-
-
-		# Test with sinusoid or ramp input signal
-		#x = ramp_signal(fs, 1.0)	# test signal
-		#x = sin_signal(fs, 1.0, fs/float(N) * 4)
-
-		# Timestretch by factor alpha
-		y = pv.timestretch(x, alpha)
-
-		# Pitchshift by a factor alpha
-		# y = pv.pitchshift(x, alpha)
-
-		# write to ouput file
-		pv.write_wav(output_file, fs, y)
-
-		# Uncomment this part if you wish to plot the input
-		# and output signals
-		'''
-		import matplotlib.pyplot as plt
-		# plot the input sound
-		plt.subplot(2,1,1)
-		plt.plot(np.arange(x.size)/float(fs), x)
-		plt.axis([0, x.size/float(fs), min(x), max(x)])
-		plt.ylabel('amplitude')
-		plt.xlabel('time (sec)')
-		plt.title('input sound: x')
-		# plot the output sound
-		plt.subplot(2,1,2)
-		plt.plot(np.arange(y.size)/float(fs), y)
-		plt.axis([0, y.size/float(fs), min(y), max(y)])
-		plt.ylabel('amplitude')
-		plt.xlabel('time (sec)')
-		plt.title('output sound: x')
-		plt.show()
-		'''
