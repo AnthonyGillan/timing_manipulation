@@ -1,9 +1,6 @@
 # timing_manipulation
 Software for creating and analysing syllable-timing-manipulated sentences for a psychophysical study on speech comprehensibility.
 
-## Creating timing-manipulated sentences
-Use **create_sentence.py** to put together sentences as specified in .txt files in the **sentences_longer** folder (or **sentences_shorter** if the directory is changed). The .txt files specify the content of the sentence and the corresponding word audio files from words_audio_jess are concatenated.
-
 ## words_audio_...
 After 33 sentences were composed (**results_and_sentence_material/sentence_material_longer.txt**), all of the words within these sentences were order-randomised and formatted into columns for ease of reading (**results_and_sentence_material/words_for_reading_slides.pptx**) for the recording session. <br />
 
@@ -14,6 +11,9 @@ The recordings were edited and the clearest and most neutrally read version of e
 Audacity was used to create a batch processing chain, passing the files through iZotope Nectar for dynamic range parallel compression, de-essing, EQ-ing, light limiting and finally conversion from stereo to mono files for use with the python programs. These processed files are in the **words_audio_jess folder** <br />
 
 **words_audio_stereo_polly** contains words synthesised by AWS polly for the first iteration of the software. **words_audio_polly** contains mono versions.
+
+## Creating timing-manipulated sentences with create_sentence.py
+Use **create_sentence.py** to put together sentences as specified in .txt files in the **sentences_longer** folder (or **sentences_shorter** if the directory is changed). The .txt files specify the content of the sentence and the corresponding word audio files from words_audio_jess are concatenated.
 
 ## Command line arguments for create_sentence.py
 **create_sentence.py** **-b** start sentence num **-e** end sentence num **-n** new word length **-t** target word number <br />
