@@ -16,7 +16,7 @@ Audacity was used to create a batch processing chain, passing the files through 
 **words_audio_stereo_polly** contains words synthesised by AWS polly for the first iteration of the software. **words_audio_polly** contains mono versions.
 
 # Command line arguments for create_sentence.py
-**create_sentence.py -b start sentence num -e end sentence num -n new word length -t target word number** <br />
+**create_sentence.py** **-b** start sentence num **-e** end sentence num **-n** new word length **-t** target word number <br />
 
 **-b** <br />
 start input sentence num -> first sentence to assemble (1 is the first sentence not 0) <br />
@@ -39,8 +39,9 @@ audio files created from spatially filtered signals are named -> 'sentence_num_r
 This program acts on one sentence. It may be used to perform various spectro-temporal analyses on a sentence put together as specified in .txt files in the **sentences_longer folder** (or **sentences_shorter** if the directory is changed).
 
 # Command line arguments for create_sentence_analysis.py
+**create_sentence_analysis.py** **-i** input sentence num **-n** new word length <br />
 **-i** <br />
-input sentence number    -> the sentence to be manipulated and analysed
+input sentence number    -> the sentence to be manipulated and analysed <br />
 **-n** <br />
 new word length          -> length in seconds for non-target words to be stretched to <br />
 
