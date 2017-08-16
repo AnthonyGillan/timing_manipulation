@@ -70,7 +70,7 @@ class Sentence:
         print 'number of samples in sentence is', self.samples_in_sentence
         print "\n"
 
-    def detect_leading_silence(self, sound, silence_threshold=-55.0, chunk_size=5):
+    def detect_leading_silence(self, sound, silence_threshold=-65.0, chunk_size=5):
         # sound is a pydub.AudioSegment
         # silence_threshold in dB
         # chunk_size in ms
@@ -261,7 +261,7 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order):
     return y                                                 # return filtered signal
 
 def louden(signal):
-	this_max=np.amax(abs(signal))
+	this_max = np.amax(abs(signal))
 
 	return signal/this_max
 
@@ -299,9 +299,9 @@ def main(argv):
 
    	for i in range(s.length):
 		if s.new_length != 0:				# new_length of 0 means no stretch
-	   		new_l=s.new_length #base_l+gammavariate(k, theta)
+	   		new_l = s.new_length #base_l+gammavariate(k, theta)
 	   		print 'new_l', new_l
-	   		old_l=s.t_lengths[i]
+	   		old_l = s.t_lengths[i]
 	  		print 'old_l', old_l
 	  		# stretch_f=old_l/new_l # eg stretch factor 0.5 -> 0.5 times original
 	   		stretch_f = new_l/old_l

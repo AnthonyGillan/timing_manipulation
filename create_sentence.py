@@ -65,7 +65,7 @@ class Sentence:
         print 'number of samples in sentence is', self.samples_in_sentence
         print "\n"
 
-    def detect_leading_silence(self, sound, silence_threshold=-59.0, chunk_size=5):
+    def detect_leading_silence(self, sound, silence_threshold=-65.0, chunk_size=5):
         # sound is a pydub.AudioSegment
         # silence_threshold in dB
         # chunk_size in ms
