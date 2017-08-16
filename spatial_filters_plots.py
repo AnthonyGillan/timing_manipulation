@@ -32,6 +32,9 @@ def butter2d_lp(shape, f, n, pxd=1):
     return filt
 
 def butter2d_vert_lp(shape, f, n, pxd=1):
+    """Designs an n-th order lowpass 2D vertical filter with cutoff
+    frequency f. pxd defines the number of pixels per unit of frequency (e.g.,
+    degrees of visual angle)."""
     pxd = float(pxd)
     rows, cols = shape
     x = np.linspace(-0.5, 0.5, cols)  * cols / pxd
@@ -44,6 +47,9 @@ def butter2d_vert_lp(shape, f, n, pxd=1):
     return filt
 
 def butter2d_horiz_lp(shape, f, n, pxd=1):
+    """Designs an n-th order lowpass 2D horizontal filter with cutoff
+    frequency f. pxd defines the number of pixels per unit of frequency (e.g.,
+    degrees of visual angle)."""
     pxd = float(pxd)
     rows, cols = shape
     x = np.linspace(-0.5, 0.5, rows)  * rows / pxd
@@ -106,7 +112,7 @@ def bandpass(data, highpass, lowpass, n, pxd, eq='histogram'):
  
 def test():
     """Test the filters."""
-    orig_image = misc.ascent()
+    orig_image = misc.ascent() # stock image -> https://docs.scipy.org/doc/scipy/reference/generated/scipy.misc.ascent.html
 #    orig_image = mpimg.imread('NW066.jpg')[:,:,0] #comment to use stock image
 #    orig_image = np.random.random_sample((1000,1000)) #use noise instead
     fft_orig = np.fft.fftshift(np.fft.fft2(orig_image))
