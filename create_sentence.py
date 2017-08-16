@@ -175,10 +175,7 @@ def louden(signal):
 
 def main(argv):
 
-	base_l = 0.4                                            # base length
-	new_l_av = 0.2                                          # new average length 
-	k = 0.1                                                 # shape of distribution
-	theta = new_l_av/k                                      # scale of distribution
+	ave_l = 0.2                                          # average length 
 
 	sentence_file = ''
 	new_length = 1.0
@@ -191,7 +188,7 @@ def main(argv):
 	for opt, arg in opts:                                  # cycle through options
 		if opt == '-h':
 			print 'create_sentence.py -b <start sentence num> -e <end sentence num> -n <new word length (s) for words other than target> -t <target word number>'
-			sys.exit()                                    # exit from python
+			sys.exit()                                    
 		elif opt in ("-b", "--begin"):                    # the sentence file to begin from
 			start_file = float(arg)                       
 			start_file = int(start_file)         
@@ -212,29 +209,27 @@ def main(argv):
 		control_words = []
 
 	   	for i in range(s.length):
-	   		if s.new_length != 0:							# new_length of 0 means no stretch
-		   		if i != target_word_num: 		 			# don't stretch target word other than to base_l
+	   		if s.new_length != 0:							           # new_length of 0 means no stretch
+		   		if i != target_word_num: 		 			           # don't stretch target word other than to ave_l
+					old_l = s.t_lengths[i]
 			   		new_l = s.new_length
-			   		# new_l = base_l + gammavariate(k, theta)
-			   		print 'new_l', new_l
-			   		old_l = s.t_lengths[i]
-			  		print 'old_l', old_l
-			  		# stretch_f=old_l/new_l 				# use with stretch_simple
+					print 'new_l', i+1, '=', new_l
+					print 'old_l', i+1, '=', old_l
+			  		# stretch_f=old_l/new_l 						   # use with stretch_simple
 			   		stretch_f = new_l/old_l
-			   		# s.words[i]=stretch_simple(s.words[i], stretch_f)
+			   		# s.words[i]=stretch_simple(s.words[i], stretch_f) # the simpler version of the phase vocoder
 			   		s.words[i] = stretch(s.words[i], stretch_f)
 			   		s.words[i] = fades(s.words[i], percentage_fade=0.05)
 			   		control_words.append(s.words[i])
 			   	else:
 			   		old_l = s.t_lengths[i]
-			   		print 'new_l', base_l
-			   		stretch_f = base_l/old_l
+					print 'new_l target =', ave_l
+					print 'old_l target =', old_l
+			   		stretch_f = ave_l/old_l
 			   		s.words[i] = stretch(s.words[i], stretch_f)
 			   		s.words[i] = fades(s.words[i], percentage_fade=0.05)
 			   		control_words.append(s.words[i])
 			else:											# new_length of 0 means no stretch
-				# stretch_f=1
-		   		# s.words[i] = stretch(s.words[i], stretch_f)
 		   		control_words.append(s.words[i])
 
 		control_s = Control_sentence(control_words, s.freq, s.word_names) 					# feed data into class
@@ -260,8 +255,8 @@ def main(argv):
 		fft_2d = np.fft.fftshift(fft_2d)
 
 		# create filter mask and multiply with signal in Fourier domain
-		# filt = butter2d_vert_lp(shape=fft_2d.shape, f=15, n=10, pxd=1) # vertical filter
-		filt = butter2d_horiz_lp(shape=fft_2d.shape, f=20, n=10, pxd=1)	 # horizontal filter
+		filt = butter2d_vert_lp(shape=fft_2d.shape, f=15, n=10, pxd=1)   # vertical filter
+		# filt = butter2d_horiz_lp(shape=fft_2d.shape, f=20, n=10, pxd=1)	 # horizontal filter
 
 		# filter the signal (multiplication in fourier domain)
 		fft_filt_sig = fft_2d * filt

@@ -21,7 +21,7 @@ class Sentence:
 
     def __init__(self, sentence_file, new_length):
     	text_file = open("sentences_longer/"+sentence_file+".txt", "r") # open file, read mode
-        # text_file = open("sentences/"+sentence_file+".txt", "r") # open file, read mode
+        # text_file = open("sentences_shorter/"+sentence_file+".txt", "r") # open file, read mode
         lines = text_file.readlines()        # returns a list of lines in file, these files contain one word per line
         lines =[s.strip() for s in lines]    # trims trailing and leading whitespace
         text_file.close()        
@@ -269,8 +269,6 @@ def main(argv):
 
 	base_l = 0.15                                           # 150ms base length
 	new_l_av = 0.2                                          # new average length 
-	k = 20                                                  # shape of distribution
-	theta = new_l_av/k                                      # scale of distribution
 
 	sentence_file = ''
 	new_length = 1.0
@@ -281,11 +279,11 @@ def main(argv):
 	try:                                                   
 		opts, args = getopt.getopt(argv,"hi:n:",["snum=","newl="])   
 	except getopt.GetoptError:                            
-		print 'load_sentence.py -i <sentence_number> -s <new_length(float)>'       
+		print 'load_sentence.py -i <sentence_num> -s <new length (s)>'       
 		sys.exit(2)                                        
 	for opt, arg in opts:                                 
 		if opt == '-h':
-			print 'load_sentence.py -i <sentence_number> -s <new_length(float)>'
+			print 'load_sentence.py -i <sentence num> -s <new length (s)>'
 			sys.exit()                                    
 		elif opt in ("-i", "--snum"):                     
 			sentence_file = arg                                    
@@ -293,25 +291,23 @@ def main(argv):
 			new_length = float(arg)                      
 
 	sentence_num = str(sentence_file)
-	s = Sentence(sentence_file, new_length)               # create a Sentence object s
+	s = Sentence(sentence_file, new_length)               		# create a Sentence object s
 
 	control_words = []
 
    	for i in range(s.length):
-		if s.new_length != 0:				# new_length of 0 means no stretch
-	   		new_l = s.new_length #base_l+gammavariate(k, theta)
-	   		print 'new_l', new_l
-	   		old_l = s.t_lengths[i]
-	  		print 'old_l', old_l
-	  		# stretch_f=old_l/new_l # eg stretch factor 0.5 -> 0.5 times original
+		if s.new_length != 0:							  		# new_length of 0 means no stretch
+			old_l = s.t_lengths[i]
+	   		new_l = s.new_length
+			print 'new_l', i+1, '=', new_l
+			print 'old_l', i+1, '=', old_l
+	  		# stretch_f=old_l/new_l           			  		# use with stretch_simple
 	   		stretch_f = new_l/old_l
-	   		# s.words[i]=stretch_simple(s.words[i], stretch_f)
+	   		# s.words[i]=stretch_simple(s.words[i], stretch_f)  # the simpler version of the phase vocoder
 	   		s.words[i] = stretch(s.words[i], stretch_f)
-	   		s.words[i] = fades(s.words[i], percentage_fade=0.1)
+	   		s.words[i] = fades(s.words[i], percentage_fade=0.05)
 	   		control_words.append(s.words[i])
 	   	else:
-			# stretch_f=1
-			# s.words[i] = stretch(s.words[i], stretch_f) # optional to put through phase vocoder without stretch 
 			control_words.append(s.words[i])
 
 	control_s = Control_sentence(control_words, s.freq, s.word_names) 	# feed data into class
@@ -440,8 +436,8 @@ def main(argv):
 	k = fig7.add_subplot(111)
 	# create vertical filter mask and multiply with signal in Fourier domain
 	# f is cutoff frequency
-	# filt = butter2d_vert_lp(shape=fft_2d.shape, f=15, n=10, pxd=1) # vertical filter
-	filt = butter2d_horiz_lp(shape=fft_2d.shape, f=20, n=10, pxd=1)	 # horizontal filter
+	filt = butter2d_vert_lp(shape=fft_2d.shape, f=15, n=10, pxd=1) # vertical filter
+	# filt = butter2d_horiz_lp(shape=fft_2d.shape, f=20, n=10, pxd=1)	 # horizontal filter
 	fft_filt_sig = fft_2d * filt
 	# shift back
 	recon_specgram = np.fft.ifftshift(fft_filt_sig)
