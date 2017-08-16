@@ -288,11 +288,9 @@ def main(argv):
 			print 'load_sentence.py -i <sentence_number> -s <new_length(float)>'
 			sys.exit()                                    
 		elif opt in ("-i", "--snum"):                     
-			sentence_file = arg                           
-			print 'Sentence file is', sentence_file           
+			sentence_file = arg                                    
 		elif opt in ("-n", "--newl"):                  
-			new_length = float(arg)                        
-			print 'new_length is', new_length
+			new_length = float(arg)                      
 
 	sentence_num = str(sentence_file)
 	s = Sentence(sentence_file, new_length)               # create a Sentence object s
