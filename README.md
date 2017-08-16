@@ -30,7 +30,7 @@ target word number       -> location of the target word in the sentence eg// 1 f
 The target word is the word which will be stretched to a pre-specified base length (base_l) <br /
 
 ## Creating timing-manipulated sentences with create_sentence_a.py
-This program differs from **create_sentence_analysis.py** in that stretching of words is done with respect to the average word length (pre-defined). A deviation factor is used (**-d** in the command line arguments). When **deviation_factor = 0**, all words are stretched to the average word length **ave_l**. The higher the deviation factor, the more the words deviate in length from **ave_l**. 
+This program differs from **create_sentence_analysis.py** in that stretching of words is done with respect to the average word length (pre-defined). A deviation factor is used (**-d** in the command line arguments). When **deviation_factor = 0**, all words are stretched to the average word length **ave_l**. When **deviation_factor = 1**, the words other than the target word are at their original lengths.
 
 ## Command line arguments for create_sentence_a.py
 **create_sentence_a.py** **-b** start sentence num **-e** end sentence num **-d** deviation factor **-t** target word number <br />
