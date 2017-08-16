@@ -13,7 +13,7 @@ Audacity was used to create a batch processing chain, passing the files through 
 **words_audio_stereo_polly** contains words synthesised by AWS polly for the first iteration of the software. **words_audio_polly** contains mono versions.
 
 ## Creating timing-manipulated sentences with create_sentence.py
-Use **create_sentence.py** to put together sentences as specified in .txt files in the **sentences_longer** folder (or **sentences_shorter** if the directory is changed). The .txt files specify the content of the sentence and the corresponding word audio files from words_audio_jess are concatenated.
+Use **create_sentence.py** to put together sentences as specified in .txt files in the **sentences_longer** folder (or **sentences_shorter** if the directory is changed and the audio files directory is changed to **words_audio_polly**). The .txt files specify the content of the sentence and the corresponding word audio files from words_audio_jess are concatenated.
 
 ## Command line arguments for create_sentence.py
 **create_sentence.py** **-b** start sentence num **-e** end sentence num **-n** new word length **-t** target word number <br />
@@ -38,7 +38,7 @@ Filter parameters are described in **spatial_filters.py** <br />
 audio files created from spatially filtered signals are named -> 'sentence_num_recov.wav'
 
 ## Analysis and manipulation with create_sentence_analysis.py
-This program acts on one sentence. It may be used to perform various spectro-temporal analyses on a sentence put together as specified in .txt files in the **sentences_longer folder** (or **sentences_shorter** if the directory is changed).
+This program acts on one sentence. It may be used to perform various spectro-temporal analyses on a sentence put together as specified in .txt files in the **sentences_longer folder** (or **sentences_shorter** if the directory is changed and the audio files directory is changed to **words_audio_polly**).
 
 ## Spatial filtering in create_sentence_analysis.py
 2D FFT operations and spatial filtering operations are implemented between this line:<br />
@@ -66,4 +66,4 @@ A slightly modified version of: https://github.com/multivac61/pv to allow for ti
 Phase-locked phase vocoding: http://msp.ucsd.edu/Publications/mohonk95.pdf <br />
 
 ## Visualising the spatial filters in spatial_filters_plots.py
-run **spatial_filters_plots.py** to visualise spatial filters
+run **spatial_filters_plots.py** to visualise spatial filters.
