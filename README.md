@@ -30,7 +30,7 @@ target word number       -> location of the target word in the sentence eg// 1 f
 The target word is the word which will be stretched to a pre-specified base length (base_l) <br /
 
 ## Creating timing-manipulated sentences with create_sentence_a.py
-This program differs from **create_sentence_analysis.py** in that stretching of words is done with respect to the average word length (pre-defined). A deviation factor is used (**-d** in the command line arguments). When **deviation_factor = 0**, all words are stretched to the average word length **ave_l**. When **deviation_factor = 1**, the words other than the target word are at their original lengths.
+This program differs from **create_sentence.py** in that stretching of words is done with respect to the average word length (pre-defined). A deviation factor is used (**-d** in the command line arguments). When **deviation_factor = 0**, all words are stretched to the average word length **ave_l**. When **deviation_factor = 1**, the words other than the target word are at their original lengths.
 
 ## Command line arguments for create_sentence_a.py
 **create_sentence_a.py** **-b** start sentence num **-e** end sentence num **-d** deviation factor **-t** target word number <br />
@@ -48,6 +48,7 @@ audio files created from spatially filtered signals are named -> 'sentence_num_r
 This program acts on one sentence. It may be used to perform various spectro-temporal analyses on a sentence put together as specified in .txt files in the **sentences_longer folder** (or **sentences_shorter** if the directory is changed and the audio files directory is changed to **words_audio_polly**).
 
 ## Analysis and manipulation with create_sentence_analysis_a.py
+This program differs from **create_sentence_analysis.py** in that stretching of words is done with respect to the average word length (pre-defined). A deviation factor is used (-d in the command line arguments). When deviation_factor = 0, all words are stretched to the average word length ave_l. When deviation_factor = 1, the words other than the target word are at their original lengths.
 
 ## Command line arguments for create_sentence_analysis_a.py
 **create_sentence_analysis.py** **-i** input sentence num **-d** deviation factor
