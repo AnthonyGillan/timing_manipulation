@@ -7,8 +7,8 @@ import numpy as np
 class Sentence:
 
     def __init__(self, sentence_file):
-    	text_file = open("sentences_longer/"+sentence_file+".txt", "r") # open file, read mode
-        # text_file = open("sentences/"+sentence_file+".txt", "r") # open file, read mode
+        text_file = open("sentences_longer/"+sentence_file+".txt", "r") # open file, read mode
+        # text_file = open("sentences_shorter/"+sentence_file+".txt", "r") # open file, read mode
         lines = text_file.readlines()        # returns a list of lines in file, these files contain one word per line
         lines =[s.strip() for s in lines]    # trims trailing and leading whitespace
         text_file.close()        
@@ -25,8 +25,9 @@ class Sentence:
             audio_seg_word = AudioSegment.from_file("words_audio_jess/"+word_name+".wav") 	# open as audiosegment to strip silence 
             word_freq, w = wavfile.read("words_audio_jess/"+word_name+".wav") 		   	   	# do this to get sample rate
 
-            # audio_seg_word = AudioSegment.from_file("words_audio/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
-            # word_freq, w = wavfile.read("words_audio/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
+            # use for folder hierarchy where audio files are in numbered folders
+            # audio_seg_word = AudioSegment.from_file("words_audio_polly/"+sentence_file+"/"+word_name+".wav") 	# open as audiosegment to strip silence 
+            # word_freq, w = wavfile.read("words_audio_polly/"+sentence_file+"/"+word_name+".wav") 		   	   	# do this to get sample rate
 
             start_trim_time = self.detect_leading_silence(audio_seg_word)						
             end_trim_time = self.detect_leading_silence(audio_seg_word.reverse())
@@ -55,7 +56,7 @@ class Sentence:
         print 'number of samples in sentence is', self.samples_in_sentence
         print "\n"
 
-    def detect_leading_silence(self, sound, silence_threshold=-55.0, chunk_size=5):
+    def detect_leading_silence(self, sound, silence_threshold=-65.0, chunk_size=5):
         # sound is a pydub.AudioSegment
         # silence_threshold in dB
         # chunk_size in ms
