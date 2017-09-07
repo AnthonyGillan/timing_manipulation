@@ -279,11 +279,11 @@ def main(argv):
 	try:                                                   
 		opts, args = getopt.getopt(argv,"hi:n:",["snum=","newl="])   
 	except getopt.GetoptError:                            
-		print 'load_sentence.py -i <sentence_num> -s <new length (s)>'       
+		print 'create_sentence_analysis.py -i <sentence_num> -n <new length (s)>'       
 		sys.exit(2)                                        
 	for opt, arg in opts:                                 
 		if opt == '-h':
-			print 'load_sentence.py -i <sentence num> -s <new length (s)>'
+			print 'create_sentence_analysis.py -i <sentence num> -n <new length (s)>'
 			sys.exit()                                    
 		elif opt in ("-i", "--snum"):                     
 			sentence_file = arg                                    
