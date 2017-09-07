@@ -267,7 +267,7 @@ def louden(signal):
 
 def main(argv):
 
-	ave_l = 0.2                                          # average length 
+	ave_l = 0.4817                                          # average length 
 
 	sentence_file = ''
 	deviation_factor = 1.0
