@@ -72,11 +72,11 @@ def main(argv):
 	try:                                                   # runs in entirety unless exception
 		opts, args = getopt.getopt(argv,"hi:",["sfile="])   # Parses command line opts and param list. (args, shortopts, longopts=[]), short -h,-i: colon if requires argument
 	except getopt.GetoptError:                             # raised when an unrecognized option is found in the argument list or when an option requiring an argument is given none
-		print 'load_sentence.py -i <sentence_file>'         # <input file>
+		print 'word_length_analysis.py -i <sentence_file>'         # <input file>
 		sys.exit(2)                                         # exit from python -> arg is an int (2) giving the exit status
 	for opt, arg in opts:                                   # cycle through options
 		if opt == '-h':
-			print 'load_sentence.py -i <sentence_file>'     # <input file>
+			print 'word_length_analysis.py -i <sentence_file>'     # <input file>
 			sys.exit()                                      # exit from python
 		elif opt in ("-i", "--sfile"):                      # if option is -i ie// input
 			sentence_file = arg                              # sentence file = arguments
