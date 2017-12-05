@@ -232,46 +232,46 @@ def main(argv):
 		control_s = Control_sentence(control_words, s.freq, s.word_names) 					     # feed data into class
 	   	wav_sentence = s_concatenate(control_s, s.deviation_factor, s.freq, str(sentence_file)) # use the class to create a .wav file of the sentence
 
-	   	############################ 2D fourier domain operations -> manipulation of spectro-temporal modulation ############################
-	   	# can all be commented out if this manipulation is not required.
+	 #   	############################ 2D fourier domain operations -> manipulation of spectro-temporal modulation ############################
+	 #   	# can all be commented out if this manipulation is not required.
 
-	   	# parameters for spectrogram
-		nyq = s.freq/2
-		fft_size = 2**10 		# window size for the FFT
-		step_size = fft_size/16 # distance to slide along the window (in time)
-		spec_thresh = 4.3 		# threshold for spectrograms in dB. increase values below thresh to thresh. lower=less noise.
+	 #   	# parameters for spectrogram
+		# nyq = s.freq/2
+		# fft_size = 2**10 		# window size for the FFT
+		# step_size = fft_size/16 # distance to slide along the window (in time)
+		# spec_thresh = 4.3 		# threshold for spectrograms in dB. increase values below thresh to thresh. lower=less noise.
 
-		power_specgram, specgram, num_samples, num_windows=pretty_spectrogram(wav_sentence.astype('float64'), fft_size=fft_size, 
-	                                   step_size=step_size, log=True, thresh=spec_thresh)
+		# power_specgram, specgram, num_samples, num_windows=pretty_spectrogram(wav_sentence.astype('float64'), fft_size=fft_size, 
+	 #                                   step_size=step_size, log=True, thresh=spec_thresh)
 
-		oriented_specgram = np.transpose(specgram)
+		# oriented_specgram = np.transpose(specgram)
 
-		# 2 dimensional fft gives a matrix
-		fft_2d = np.fft.fft2(oriented_specgram)
-		# shift so low freqs are in center of output matrix
-		fft_2d = np.fft.fftshift(fft_2d)
+		# # 2 dimensional fft gives a matrix
+		# fft_2d = np.fft.fft2(oriented_specgram)
+		# # shift so low freqs are in center of output matrix
+		# fft_2d = np.fft.fftshift(fft_2d)
 
-		# create filter mask and multiply with signal in Fourier domain
-		filt = butter2d_vert_lp(shape=fft_2d.shape, f=15, n=10, pxd=1) # vertical filter
-		# filt = butter2d_horiz_lp(shape=fft_2d.shape, f=20, n=10, pxd=1)	 # horizontal filter
+		# # create filter mask and multiply with signal in Fourier domain
+		# filt = butter2d_vert_lp(shape=fft_2d.shape, f=15, n=10, pxd=1) # vertical filter
+		# # filt = butter2d_horiz_lp(shape=fft_2d.shape, f=20, n=10, pxd=1)	 # horizontal filter
 
-		# filter the signal (multiplication in fourier domain)
-		fft_filt_sig = fft_2d * filt
-		# shift back
-		recon_specgram = np.fft.ifftshift(fft_filt_sig)
-		# ifft2
-		recon_specgram = np.fft.ifft2(recon_specgram)
-		# abs and invert (-)
-		recon_specgram = -np.abs(recon_specgram)
-		recon_specgram[recon_specgram < -4.1] = -4.2
+		# # filter the signal (multiplication in fourier domain)
+		# fft_filt_sig = fft_2d * filt
+		# # shift back
+		# recon_specgram = np.fft.ifftshift(fft_filt_sig)
+		# # ifft2
+		# recon_specgram = np.fft.ifft2(recon_specgram)
+		# # abs and invert (-)
+		# recon_specgram = -np.abs(recon_specgram)
+		# recon_specgram[recon_specgram < -4.1] = -4.2
 
-		recovered_audio_orig = invert_pretty_spectrogram(np.transpose(recon_specgram), 
-			fft_size=fft_size, step_size=step_size, log=True, n_iter=10)
+		# recovered_audio_orig = invert_pretty_spectrogram(np.transpose(recon_specgram), 
+		# 	fft_size=fft_size, step_size=step_size, log=True, n_iter=10)
 
-		recovered_audio_orig = louden(recovered_audio_orig)
+		# recovered_audio_orig = louden(recovered_audio_orig)
 
-		# create .wav of spectro-temporal-modulation manipulated signal
-		wavfile.write(""+sentence_num+"_recov.wav", s.freq, recovered_audio_orig)
+		# # create .wav of spectro-temporal-modulation manipulated signal
+		# wavfile.write(""+sentence_num+"_recov.wav", s.freq, recovered_audio_orig)
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
